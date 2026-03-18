@@ -22,8 +22,8 @@ export default class Client extends BaseClient {
     const helper = new ClientHelper({
       addressFromBytes,
       bytesFromAddress,
-      serializeHash: (hash) => hash.slice(2),
-      deserializeHash: (hash) => '0x' + hash,
+      serializeHash: (hash) => '0x' + hash,
+      deserializeHash: (hash) => hash.slice(2),
     });
     super(jsonRpcUrl, helper);
     this.#walletUrl = walletUrl;
