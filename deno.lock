@@ -7,7 +7,7 @@
     "jsr:@quentinadam/base58@~0.1.12": "0.1.12",
     "jsr:@quentinadam/base58check@~0.1.13": "0.1.13",
     "jsr:@quentinadam/ensure@~0.1.5": "0.1.5",
-    "jsr:@quentinadam/evm-base@~0.1.4": "0.1.4",
+    "jsr:@quentinadam/evm-base@~0.1.5": "0.1.5",
     "jsr:@quentinadam/hash@~0.1.12": "0.1.12",
     "jsr:@quentinadam/rlp@0.1": "0.1.0",
     "jsr:@quentinadam/secp256k1@~0.1.3": "0.1.3",
@@ -47,8 +47,8 @@
         "jsr:@quentinadam/assert"
       ]
     },
-    "@quentinadam/evm-base@0.1.4": {
-      "integrity": "bae0d53ebaed472f8f6a0e9e2711a98550d8465d597f03934e0b8016e3afb50d",
+    "@quentinadam/evm-base@0.1.5": {
+      "integrity": "8a52b18b932ecabf1844646d3c6351a998691c9ed50b0b400eff178609e36753",
       "dependencies": [
         "jsr:@quentinadam/assert",
         "jsr:@quentinadam/ensure",
@@ -104,7 +104,7 @@
     "dependencies": [
       "jsr:@quentinadam/assert@~0.1.17",
       "jsr:@quentinadam/base58check@~0.1.13",
-      "jsr:@quentinadam/evm-base@~0.1.4",
+      "jsr:@quentinadam/evm-base@~0.1.5",
       "jsr:@quentinadam/hash@~0.1.12",
       "jsr:@quentinadam/secp256k1@~0.1.3",
       "jsr:@quentinadam/uint8array-extension@~0.1.13",
