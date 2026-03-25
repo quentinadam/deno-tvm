@@ -17,6 +17,10 @@ export default class PrivateKey {
     return new PrivateKey(Secp256k1PrivateKey.fromBytes(bytes));
   }
 
+  static random(): PrivateKey {
+    return new PrivateKey(Secp256k1PrivateKey.random());
+  }
+
   toBytes(): Uint8Array<ArrayBuffer> {
     return this.#privateKey.toBytes();
   }

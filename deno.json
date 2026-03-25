@@ -14,12 +14,12 @@
   "imports": {
     "@quentinadam/assert": "jsr:@quentinadam/assert@^0.1.17",
     "@quentinadam/base58check": "jsr:@quentinadam/base58check@^0.1.13",
-    "@quentinadam/evm-base": "jsr:@quentinadam/evm-base@^0.1.5",
+    "@quentinadam/evm-base": "jsr:@quentinadam/evm-base@^0.1.8",
     "@quentinadam/hash": "jsr:@quentinadam/hash@^0.1.12",
     "@quentinadam/secp256k1": "jsr:@quentinadam/secp256k1@^0.1.3",
     "@quentinadam/uint8array-extension": "jsr:@quentinadam/uint8array-extension@^0.1.13",
     "@quentinadam/zod": "jsr:@quentinadam/zod@^0.1.14",
-    "typescript": "npm:typescript@^6.0.1-rc"
+    "typescript": "npm:typescript@^6.0.2"
   },
   "fmt": {
     "singleQuote": true,

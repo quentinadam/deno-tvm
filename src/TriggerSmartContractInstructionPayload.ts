@@ -6,19 +6,19 @@ import type { InspectFn } from './inspect.ts';
 
 export default class TriggerSmartContractInstructionPayload extends InstructionPayload {
   readonly owner: string;
-  readonly contract: string;
+  readonly address: string;
   readonly value: bigint;
   readonly data: Uint8Array<ArrayBuffer>;
 
-  constructor({ owner, contract, value, data }: {
+  constructor({ owner, address, value, data }: {
     owner: string;
-    contract: string;
+    address: string;
     value?: bigint;
     data?: Uint8Array<ArrayBuffer>;
   }) {
     super();
     this.owner = owner;
-    this.contract = contract;
+    this.address = address;
     this.value = value ?? 0n;
     this.data = data ?? new Uint8Array();
   }
@@ -26,7 +26,7 @@ export default class TriggerSmartContractInstructionPayload extends InstructionP
   serialize(): Uint8Array<ArrayBuffer> {
     return encode([
       { key: 1, value: prefixedBytesFromAddress(this.owner) },
-      { key: 2, value: prefixedBytesFromAddress(this.contract) },
+      { key: 2, value: prefixedBytesFromAddress(this.address) },
       ...(this.value !== 0n ? [{ key: 3, value: this.value }] : []),
       { key: 4, value: this.data },
     ]);
@@ -44,22 +44,22 @@ export default class TriggerSmartContractInstructionPayload extends InstructionP
     return inspect(
       new (class TriggerSmartContractInstructionPayload {
         readonly owner;
-        readonly contract;
+        readonly address;
         readonly value;
         readonly data;
 
-        constructor({ owner, contract, value, data }: {
+        constructor({ owner, address, value, data }: {
           owner: string;
-          contract: string;
+          address: string;
           value: bigint;
           data: Uint8Array<ArrayBuffer>;
         }) {
           this.owner = owner;
-          this.contract = contract;
+          this.address = address;
           this.value = createInspectableScaledBigIntWrapper(value, 6);
           this.data = createInspectableDataWrapper(data);
         }
-      })({ owner: this.owner, contract: this.contract, value: this.value, data: this.data }),
+      })({ owner: this.owner, address: this.address, value: this.value, data: this.data }),
       options,
     );
   }

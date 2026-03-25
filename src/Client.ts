@@ -30,9 +30,9 @@ export default class Client extends BaseClient {
     this.#helper = helper;
   }
 
-  async triggerSmartContract({ owner, contract, data, feeLimit, value }: {
+  async triggerSmartContract({ owner, address, data, feeLimit, value }: {
     owner: string;
-    contract: string;
+    address: string;
     data?: Uint8Array<ArrayBuffer> | { method: string; parameters: Uint8Array<ArrayBuffer> | unknown[] };
     feeLimit?: number;
     value?: number;
@@ -45,7 +45,7 @@ export default class Client extends BaseClient {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         owner_address: owner,
-        contract_address: contract,
+        contract_address: address,
         data: data?.toHex(),
         fee_limit: feeLimit,
         call_value: value !== undefined ? Number(value) : 0,
@@ -67,19 +67,19 @@ export default class Client extends BaseClient {
           visible: z.literal(true),
           txID: z.string(),
           raw_data: z.object({
-            contract: z.tuple([
+            address: z.tuple([
               z.object({
                 type: z.literal('TriggerSmartContract'),
                 parameter: z.object({
                   value: z.object({
                     owner_address: z.literal(owner),
-                    contract_address: z.literal(contract),
+                    contract_address: z.literal(address),
                     data: z.literal(data?.toHex()),
                     call_value: z.literal(value),
                   }).transform(({ owner_address, contract_address, data, call_value }) => {
                     return new TriggerSmartContractInstructionPayload({
                       owner: owner_address,
-                      contract: contract_address,
+                      address: contract_address,
                       data: data !== undefined ? Uint8Array.fromHex(data) : new Uint8Array(),
                       value: call_value !== undefined ? BigInt(call_value) : 0n,
                     });
@@ -96,7 +96,7 @@ export default class Client extends BaseClient {
             fee_limit: z.number().optional(),
             timestamp: z.number().transform((timestamp) => new Date(timestamp)),
           }).transform(
-            ({ contract: [instruction], ref_block_bytes, ref_block_hash, expiration, fee_limit, timestamp }) => {
+            ({ address: [instruction], ref_block_bytes, ref_block_hash, expiration, fee_limit, timestamp }) => {
               return new TriggerSmartContractTransaction({
                 instruction,
                 referenceBlockBytes: Uint8Array.fromHex(ref_block_bytes),
