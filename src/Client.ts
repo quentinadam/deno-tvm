@@ -8,8 +8,9 @@ import addressFromBytes from './addressFromBytes.ts';
 import bytesFromAddress from './bytesFromAddress.ts';
 
 export default class Client extends BaseClient {
-  readonly #walletUrl;
-  readonly #helper;
+  readonly #walletUrl: string;
+  readonly #helper: ClientHelper;
+  readonly #logger?: { log: (...args: unknown[]) => void };
 
   constructor(
     url: string | { jsonRpc: string; wallet: string },
@@ -31,6 +32,23 @@ export default class Client extends BaseClient {
     super(jsonRpcUrl, { helper, logger });
     this.#walletUrl = walletUrl;
     this.#helper = helper;
+    this.#logger = logger;
+  }
+
+  async #fetch(path: string, options?: { method?: 'GET' | 'POST'; body?: string }): Promise<unknown> {
+    const url = `${this.#walletUrl}${path}`;
+    this.#logger?.log(options?.method ?? 'GET', url, options?.body);
+    const response = await fetch(url, {
+      method: options?.method,
+      headers: { 'Content-Type': 'application/json' },
+      body: options?.body,
+    });
+    const text = await response.text();
+    this.#logger?.log(response.status, text);
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}: ${text}`);
+    }
+    return JSON.parse(text);
   }
 
   async triggerSmartContract({ from, to, value, data, feeLimit }: {
@@ -43,9 +61,8 @@ export default class Client extends BaseClient {
     if (data !== undefined) {
       data = this.#helper.normalizeData(data);
     }
-    const response = await fetch(`${this.#walletUrl}/triggersmartcontract`, {
+    const json = await this.#fetch('/triggersmartcontract', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         owner_address: from,
         contract_address: to,
@@ -55,9 +72,6 @@ export default class Client extends BaseClient {
         visible: true,
       }),
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error ${response.status}: ${await response.text()}`);
-    }
     const result = z.union([
       z.object({ result: z.object({ code: z.string(), message: z.string() }) }).transform(
         ({ result: { code, message } }) => {
@@ -120,7 +134,7 @@ export default class Client extends BaseClient {
       }).transform(({ transaction }) => {
         return { success: true, transaction } as const;
       }),
-    ]).parse(await response.json());
+    ]).parse(json);
     if (!result.success) {
       throw new Error(result.error);
     }
@@ -134,19 +148,15 @@ export default class Client extends BaseClient {
     if (typeof bytes === 'string') {
       bytes = this.#helper.deserializeBytes(bytes);
     }
-    const response = await fetch(`${this.#walletUrl}/broadcasthex`, {
+    const json = await this.#fetch('/broadcasthex', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ transaction: bytes.toHex() }),
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error ${response.status}: ${await response.text()}`);
-    }
     const { txid } = z.object({
       result: z.literal(true),
       code: z.literal('SUCCESS'),
       txid: z.string(),
-    }).parse(await response.json());
+    }).parse(json);
     return txid;
   }
 }
