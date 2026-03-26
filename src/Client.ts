@@ -84,7 +84,7 @@ export default class Client extends BaseClient {
           visible: z.literal(true),
           txID: z.string(),
           raw_data: z.object({
-            address: z.tuple([
+            contract: z.tuple([
               z.object({
                 type: z.literal('TriggerSmartContract'),
                 parameter: z.object({
@@ -113,7 +113,7 @@ export default class Client extends BaseClient {
             fee_limit: z.number().transform((value) => BigInt(value)).optional(),
             timestamp: z.number().transform((timestamp) => new Date(timestamp)),
           }).transform(({
-            address: [instruction],
+            contract: [instruction],
             ref_block_bytes: referenceBlockBytes,
             ref_block_hash: referenceBlockHash,
             expiration,
