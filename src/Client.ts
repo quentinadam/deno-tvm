@@ -11,7 +11,10 @@ export default class Client extends BaseClient {
   readonly #walletUrl;
   readonly #helper;
 
-  constructor(url: string | { jsonRpc: string; wallet: string }) {
+  constructor(
+    url: string | { jsonRpc: string; wallet: string },
+    { logger }: { logger?: { log: (...args: unknown[]) => void } } = {},
+  ) {
     const { jsonRpcUrl, walletUrl } = (() => {
       if (typeof url === 'string') {
         return { jsonRpcUrl: `${url}/jsonrpc`, walletUrl: `${url}/wallet` };
@@ -25,7 +28,7 @@ export default class Client extends BaseClient {
       serializeHash: (hash) => '0x' + hash,
       deserializeHash: (hash) => hash.slice(2),
     });
-    super(jsonRpcUrl, helper);
+    super(jsonRpcUrl, { helper, logger });
     this.#walletUrl = walletUrl;
     this.#helper = helper;
   }
