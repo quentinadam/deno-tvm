@@ -1,4 +1,4 @@
-import assert from '@quentinadam/assert';
+import { assert } from '@quentinadam/assert';
 import * as base58check from '@quentinadam/base58check';
 
 export function prefixedBytesFromAddress(address: string): Uint8Array<ArrayBuffer> {

@@ -1,6 +1,6 @@
 import { Client as BaseClient, ClientHelper } from '@quentinadam/evm-base';
 import * as z from '@quentinadam/zod';
-import assert from '@quentinadam/assert';
+import { assert } from '@quentinadam/assert';
 import { TriggerSmartContractInstructionPayload } from './TriggerSmartContractInstructionPayload.ts';
 import { Instruction } from './Instruction.ts';
 import { TriggerSmartContractTransaction } from './TriggerSmartContractTransaction.ts';

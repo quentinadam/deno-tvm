@@ -1,5 +1,5 @@
 import * as base58check from '@quentinadam/base58check';
-import assert from '@quentinadam/assert';
+import { assert } from '@quentinadam/assert';
 import { concat } from '@quentinadam/uint8array-extension';
 
 export function addressFromBytes(bytes: Uint8Array<ArrayBuffer>): string {
