@@ -1,4 +1,4 @@
-import concat from '@quentinadam/uint8array-extension/concat';
+import { concat } from '@quentinadam/uint8array-extension';
 
 class BufferWriter {
   readonly #chunks = new Array<Uint8Array<ArrayBuffer>>();

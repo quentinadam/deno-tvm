@@ -1,5 +1,5 @@
 import { concat, fromUintBE } from '@quentinadam/uint8array-extension';
-import sha256 from '@quentinadam/hash/sha256';
+import { sha256 } from '@quentinadam/hash/sha256';
 import type Instruction from './Instruction.ts';
 import type InstructionPayload from './InstructionPayload.ts';
 import { encode } from './protobuf.ts';

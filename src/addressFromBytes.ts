@@ -1,6 +1,6 @@
 import * as base58check from '@quentinadam/base58check';
 import assert from '@quentinadam/assert';
-import concat from '@quentinadam/uint8array-extension/concat';
+import { concat } from '@quentinadam/uint8array-extension';
 
 export default function addressFromBytes(bytes: Uint8Array<ArrayBuffer>): string {
   if (bytes.length === 21) {
