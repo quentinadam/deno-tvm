@@ -1,8 +1,8 @@
 import { PrivateKey as Secp256k1PrivateKey } from '@quentinadam/secp256k1';
 import { PrivateKey as BasePrivateKey } from '@quentinadam/evm-base';
-import addressFromBytes from './addressFromBytes.ts';
+import { addressFromBytes } from './addressFromBytes.ts';
 
-export default class PrivateKey extends BasePrivateKey {
+export class PrivateKey extends BasePrivateKey {
   constructor(privateKey: Secp256k1PrivateKey) {
     super({ privateKey, addressFromBytes });
   }

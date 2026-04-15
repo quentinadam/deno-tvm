@@ -1,8 +1,8 @@
-import type Instruction from './Instruction.ts';
-import Transaction from './Transaction.ts';
-import type TriggerSmartContractInstructionPayload from './TriggerSmartContractInstructionPayload.ts';
+import type { Instruction } from './Instruction.ts';
+import { Transaction } from './Transaction.ts';
+import type { TriggerSmartContractInstructionPayload } from './TriggerSmartContractInstructionPayload.ts';
 
-export default class TriggerSmartContractTransaction extends Transaction<TriggerSmartContractInstructionPayload> {
+export class TriggerSmartContractTransaction extends Transaction<TriggerSmartContractInstructionPayload> {
   constructor({ instruction, referenceBlockBytes, referenceBlockHash, expiration, feeLimit, timestamp }: {
     instruction: Instruction<TriggerSmartContractInstructionPayload>;
     referenceBlockBytes: Uint8Array<ArrayBuffer>;

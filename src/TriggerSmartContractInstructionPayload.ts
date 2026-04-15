@@ -1,10 +1,10 @@
-import InstructionPayload from './InstructionPayload.ts';
-import prefixedBytesFromAddress from './prefixedBytesFromAddress.ts';
+import { InstructionPayload } from './InstructionPayload.ts';
+import { prefixedBytesFromAddress } from './prefixedBytesFromAddress.ts';
 import { encode } from './protobuf.ts';
 import { createInspectableDataWrapper, createInspectableScaledBigIntWrapper } from '@quentinadam/evm-base';
 import type { InspectFn } from './inspect.ts';
 
-export default class TriggerSmartContractInstructionPayload extends InstructionPayload {
+export class TriggerSmartContractInstructionPayload extends InstructionPayload {
   readonly from: string;
   readonly to: string;
   readonly value: bigint;

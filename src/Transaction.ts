@@ -1,14 +1,14 @@
 import { concat, fromUintBE } from '@quentinadam/uint8array-extension';
 import { sha256 } from '@quentinadam/hash/sha256';
-import type Instruction from './Instruction.ts';
-import type InstructionPayload from './InstructionPayload.ts';
+import type { Instruction } from './Instruction.ts';
+import type { InstructionPayload } from './InstructionPayload.ts';
 import { encode } from './protobuf.ts';
-import type PrivateKey from './PrivateKey.ts';
-import SignedTransaction from './SignedTransaction.ts';
+import type { PrivateKey } from './PrivateKey.ts';
+import { SignedTransaction } from './SignedTransaction.ts';
 import { createInspectableScaledBigIntWrapper } from '@quentinadam/evm-base';
 import type { InspectFn } from './inspect.ts';
 
-export default class Transaction<T extends InstructionPayload> {
+export class Transaction<T extends InstructionPayload> {
   readonly instruction: Instruction<T>;
   readonly referenceBlockBytes: Uint8Array<ArrayBuffer>;
   readonly referenceBlockHash: Uint8Array<ArrayBuffer>;

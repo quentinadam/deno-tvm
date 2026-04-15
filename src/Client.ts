@@ -1,13 +1,13 @@
 import { Client as BaseClient, ClientHelper } from '@quentinadam/evm-base';
 import * as z from '@quentinadam/zod';
 import assert from '@quentinadam/assert';
-import TriggerSmartContractInstructionPayload from './TriggerSmartContractInstructionPayload.ts';
-import Instruction from './Instruction.ts';
-import TriggerSmartContractTransaction from './TriggerSmartContractTransaction.ts';
-import addressFromBytes from './addressFromBytes.ts';
-import bytesFromAddress from './bytesFromAddress.ts';
+import { TriggerSmartContractInstructionPayload } from './TriggerSmartContractInstructionPayload.ts';
+import { Instruction } from './Instruction.ts';
+import { TriggerSmartContractTransaction } from './TriggerSmartContractTransaction.ts';
+import { addressFromBytes } from './addressFromBytes.ts';
+import { bytesFromAddress } from './bytesFromAddress.ts';
 
-export default class Client extends BaseClient {
+export class Client extends BaseClient {
   readonly #walletUrl: string;
   readonly #helper: ClientHelper;
   readonly #logger?: { log: (...args: unknown[]) => void };

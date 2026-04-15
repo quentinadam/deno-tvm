@@ -1,8 +1,8 @@
-import type InstructionPayload from './InstructionPayload.ts';
+import type { InstructionPayload } from './InstructionPayload.ts';
 import { encode } from './protobuf.ts';
 import type { InspectFn } from './inspect.ts';
 
-export default class Instruction<T extends InstructionPayload> {
+export class Instruction<T extends InstructionPayload> {
   readonly code: number;
   readonly type: string;
   readonly payload: T;

@@ -1,8 +1,8 @@
-import type InstructionPayload from './InstructionPayload.ts';
+import type { InstructionPayload } from './InstructionPayload.ts';
 import { encode } from './protobuf.ts';
-import type Transaction from './Transaction.ts';
+import type { Transaction } from './Transaction.ts';
 
-export default class SignedTransaction<T extends InstructionPayload> {
+export class SignedTransaction<T extends InstructionPayload> {
   readonly transaction: Transaction<T>;
   readonly signatures: Uint8Array<ArrayBuffer>[];
 
