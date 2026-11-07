@@ -3,9 +3,8 @@ import { sha256 } from '@quentinadam/hash/sha256';
 import type { Instruction } from './Instruction.ts';
 import type { InstructionPayload } from './InstructionPayload.ts';
 import { encode } from './protobuf.ts';
-import type { PrivateKey } from './PrivateKey.ts';
 import { SignedTransaction } from './SignedTransaction.ts';
-import { createInspectableScaledBigIntWrapper } from '@quentinadam/evm-base';
+import { createInspectableScaledBigIntWrapper, signDigest, type Signer } from '@quentinadam/evm-base';
 import type { InspectFn } from './inspect.ts';
 
 export class Transaction<T extends InstructionPayload> {
@@ -51,8 +50,8 @@ export class Transaction<T extends InstructionPayload> {
     ]);
   }
 
-  sign(privateKey: PrivateKey): SignedTransaction<T> {
-    const { r, s, recovery } = privateKey.sign(this.#hash());
+  async sign(signer: Signer): Promise<SignedTransaction<T>> {
+    const { r, s, recovery } = await signDigest({ signer, digest: this.#hash() });
     return new SignedTransaction({
       transaction: this,
       signatures: [concat([fromUintBE(r, 32), fromUintBE(s, 32), new Uint8Array([recovery])])],

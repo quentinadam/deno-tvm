@@ -2,7 +2,7 @@ import { Client as BaseClient, ClientHelper } from '@quentinadam/evm-base';
 import * as z from '@quentinadam/zod';
 import { assert } from '@quentinadam/assert';
 import { TriggerSmartContractInstructionPayload } from './TriggerSmartContractInstructionPayload.ts';
-import { Instruction } from './Instruction.ts';
+import { TriggerSmartContractInstruction } from './TriggerSmartContractInstruction.ts';
 import { TriggerSmartContractTransaction } from './TriggerSmartContractTransaction.ts';
 import { addressFromBytes } from './addressFromBytes.ts';
 import { bytesFromAddress } from './bytesFromAddress.ts';
@@ -103,8 +103,8 @@ export class Client extends BaseClient {
                   }),
                   type_url: z.literal('type.googleapis.com/protocol.TriggerSmartContract'),
                 }),
-              }).transform(({ type, parameter: { value: payload } }) => {
-                return new Instruction<TriggerSmartContractInstructionPayload>({ code: 31, type, payload });
+              }).transform(({ parameter: { value: payload } }) => {
+                return new TriggerSmartContractInstruction(payload);
               }),
             ]),
             ref_block_bytes: z.string().transform((refBlockBytes) => Uint8Array.fromHex(refBlockBytes)),
