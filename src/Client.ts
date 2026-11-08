@@ -11,10 +11,16 @@ export class Client extends BaseClient {
   readonly #walletUrl: string;
   readonly #helper: ClientHelper;
   readonly #logger?: { log: (...args: unknown[]) => void };
+  readonly #fetcher: { fetch(url: string, options?: RequestInit): Promise<Response> };
+  readonly #headers?: Record<string, string>;
 
   constructor(
     url: string | { jsonRpc: string; wallet: string },
-    { logger }: { logger?: { log: (...args: unknown[]) => void } } = {},
+    { logger, fetcher = { fetch: (url, options) => fetch(url, options) }, headers }: {
+      logger?: { log: (...args: unknown[]) => void };
+      fetcher?: { fetch(url: string, options?: RequestInit): Promise<Response> };
+      headers?: Record<string, string>;
+    } = {},
   ) {
     const { jsonRpcUrl, walletUrl } = (() => {
       if (typeof url === 'string') {
@@ -29,20 +35,20 @@ export class Client extends BaseClient {
       serializeHash: (hash) => '0x' + hash,
       deserializeHash: (hash) => hash.slice(2),
     });
-    super(jsonRpcUrl, { helper, logger });
+    super(jsonRpcUrl, { helper, logger, fetcher, headers });
     this.#walletUrl = walletUrl;
     this.#helper = helper;
     this.#logger = logger;
+    this.#fetcher = fetcher;
+    this.#headers = headers;
   }
 
   async #fetch(path: string, options?: { method?: 'GET' | 'POST'; body?: string }): Promise<unknown> {
     const url = `${this.#walletUrl}${path}`;
     this.#logger?.log(options?.method ?? 'GET', url, options?.body);
-    const response = await fetch(url, {
-      method: options?.method,
-      headers: { 'Content-Type': 'application/json' },
-      body: options?.body,
-    });
+    const headers = new Headers(this.#headers);
+    headers.set('Content-Type', 'application/json');
+    const response = await this.#fetcher.fetch(url, { method: options?.method, headers, body: options?.body });
     const text = await response.text();
     this.#logger?.log(response.status, text);
     if (!response.ok) {
