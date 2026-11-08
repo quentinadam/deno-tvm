@@ -7,6 +7,7 @@ export { Instruction } from './Instruction.ts';
 export { InstructionPayload } from './InstructionPayload.ts';
 export { MethodSignatureRegistry } from '@quentinadam/evm-base';
 export { PrivateKey } from './PrivateKey.ts';
+export { PublicKey } from './PublicKey.ts';
 export type { Signer } from '@quentinadam/evm-base';
 export { computeCREATEAddress } from './computeCREATEAddress.ts';
 export { computeCREATE2Address } from './computeCREATE2Address.ts';

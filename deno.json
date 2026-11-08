@@ -14,7 +14,7 @@
   "imports": {
     "@quentinadam/assert": "jsr:@quentinadam/assert@^0.1.18",
     "@quentinadam/base58check": "jsr:@quentinadam/base58check@^0.1.16",
-    "@quentinadam/evm-base": "jsr:@quentinadam/evm-base@^0.2.0",
+    "@quentinadam/evm-base": "jsr:@quentinadam/evm-base@^0.2.1",
     "@quentinadam/hash": "jsr:@quentinadam/hash@^0.1.16",
     "@quentinadam/secp256k1": "jsr:@quentinadam/secp256k1@^0.1.6",
     "@quentinadam/uint8array-extension": "jsr:@quentinadam/uint8array-extension@^0.1.19",
