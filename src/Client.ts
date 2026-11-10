@@ -74,10 +74,12 @@ export class Client extends BaseClient {
         contract_address: to,
         data: data?.toHex(),
         fee_limit: feeLimit,
-        call_value: value !== undefined ? Number(value) : 0,
+        call_value: value ?? 0,
         visible: true,
       }),
     });
+    const expectedData = data?.toHex() ?? '';
+    const expectedValue = value ?? 0;
     const result = z.union([
       z.object({ result: z.object({ code: z.string(), message: z.string() }) }).transform(
         ({ result: { code, message } }) => {
@@ -97,14 +99,21 @@ export class Client extends BaseClient {
                   value: z.object({
                     owner_address: z.literal(from),
                     contract_address: z.literal(to),
-                    data: z.literal(data?.toHex()),
-                    call_value: z.literal(value),
+                    // The node omits empty data and a zero call value.
+                    data: z.string().optional().transform((hex) => hex ?? '').refine(
+                      (hex) => hex === expectedData,
+                      (hex) => `Expected data ${expectedData}, got ${hex}`,
+                    ),
+                    call_value: z.number().optional().transform((callValue) => callValue ?? 0).refine(
+                      (callValue) => callValue === expectedValue,
+                      (callValue) => `Expected call value ${expectedValue}, got ${callValue}`,
+                    ),
                   }).transform(({ owner_address, contract_address, data, call_value }) => {
                     return new TriggerSmartContractInstructionPayload({
                       from: owner_address,
                       to: contract_address,
-                      data: data !== undefined ? Uint8Array.fromHex(data) : new Uint8Array(),
-                      value: call_value !== undefined ? BigInt(call_value) : 0n,
+                      data: Uint8Array.fromHex(data),
+                      value: BigInt(call_value),
                     });
                   }),
                   type_url: z.literal('type.googleapis.com/protocol.TriggerSmartContract'),

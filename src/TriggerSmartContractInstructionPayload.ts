@@ -28,7 +28,7 @@ export class TriggerSmartContractInstructionPayload extends InstructionPayload {
       { key: 1, value: prefixedBytesFromAddress(this.from) },
       { key: 2, value: prefixedBytesFromAddress(this.to) },
       ...(this.value !== 0n ? [{ key: 3, value: this.value }] : []),
-      { key: 4, value: this.data },
+      ...(this.data.length !== 0 ? [{ key: 4, value: this.data }] : []),
     ]);
   }
 
