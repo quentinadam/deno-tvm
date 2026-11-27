@@ -4,11 +4,17 @@ import { encode } from './protobuf.ts';
 import { createInspectableDataWrapper, createInspectableScaledBigIntWrapper } from '@quentinadam/evm-base';
 import type { InspectFn } from './inspect.ts';
 
+// TronWeb's defaults: callers pay all the energy their calls use, so the origin pays none, though the network requires
+// a positive limit.
+export const DEFAULT_CONSUME_USER_RESOURCE_PERCENT = 100;
+export const DEFAULT_ORIGIN_ENERGY_LIMIT = 10_000_000n;
+
 /**
  * The creation of a contract by `from`, which becomes its origin: `data` is its creation code followed by its
  * constructor arguments, `value` the sun sent to its constructor, and `name` the name the network records for it. A
  * caller of the contract pays `consumeUserResourcePercent` percent of the energy its calls use, and the origin the rest,
- * up to `originEnergyLimit` per call. It holds no ABI, which the network does not need.
+ * up to `originEnergyLimit` per call: by default 100 and 10,000,000, as TronWeb's. It holds no ABI, which the network
+ * does not need.
  */
 export class CreateSmartContractInstructionPayload extends InstructionPayload {
   readonly from: string;
@@ -23,16 +29,16 @@ export class CreateSmartContractInstructionPayload extends InstructionPayload {
     data: Uint8Array<ArrayBuffer>;
     value?: bigint;
     name?: string;
-    consumeUserResourcePercent: number;
-    originEnergyLimit: bigint;
+    consumeUserResourcePercent?: number;
+    originEnergyLimit?: bigint;
   }) {
     super();
     this.from = from;
     this.data = data;
     this.value = value ?? 0n;
     this.name = name ?? '';
-    this.consumeUserResourcePercent = consumeUserResourcePercent;
-    this.originEnergyLimit = originEnergyLimit;
+    this.consumeUserResourcePercent = consumeUserResourcePercent ?? DEFAULT_CONSUME_USER_RESOURCE_PERCENT;
+    this.originEnergyLimit = originEnergyLimit ?? DEFAULT_ORIGIN_ENERGY_LIMIT;
   }
 
   // As the node writes it: an empty ABI, and proto3's zero values left out.

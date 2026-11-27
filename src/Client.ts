@@ -2,7 +2,11 @@ import { Client as BaseClient, ClientHelper } from '@quentinadam/evm-base';
 import * as z from '@quentinadam/zod';
 import { assert } from '@quentinadam/assert';
 import { CreateSmartContractInstruction } from './CreateSmartContractInstruction.ts';
-import { CreateSmartContractInstructionPayload } from './CreateSmartContractInstructionPayload.ts';
+import {
+  CreateSmartContractInstructionPayload,
+  DEFAULT_CONSUME_USER_RESOURCE_PERCENT,
+  DEFAULT_ORIGIN_ENERGY_LIMIT,
+} from './CreateSmartContractInstructionPayload.ts';
 import { CreateSmartContractTransaction } from './CreateSmartContractTransaction.ts';
 import { TriggerSmartContractInstructionPayload } from './TriggerSmartContractInstructionPayload.ts';
 import { TriggerSmartContractInstruction } from './TriggerSmartContractInstruction.ts';
@@ -164,15 +168,24 @@ export class Client extends BaseClient {
 
   /**
    * The node's unsigned transaction creating a contract from `from` with `data`, its creation code followed by its
-   * constructor arguments, as `CreateSmartContractInstructionPayload` describes, checked against what was asked.
+   * constructor arguments, as `CreateSmartContractInstructionPayload` describes, with its defaults, checked against what
+   * was asked.
    */
-  async deployContract({ from, data, value, name, consumeUserResourcePercent, originEnergyLimit, feeLimit }: {
+  async deployContract({
+    from,
+    data,
+    value,
+    name,
+    consumeUserResourcePercent = DEFAULT_CONSUME_USER_RESOURCE_PERCENT,
+    originEnergyLimit = Number(DEFAULT_ORIGIN_ENERGY_LIMIT),
+    feeLimit,
+  }: {
     from: string;
     data: Uint8Array<ArrayBuffer>;
     value?: number;
     name?: string;
-    consumeUserResourcePercent: number;
-    originEnergyLimit: number;
+    consumeUserResourcePercent?: number;
+    originEnergyLimit?: number;
     feeLimit?: number;
   }): Promise<CreateSmartContractTransaction> {
     const json = await this.#fetch('/deploycontract', {

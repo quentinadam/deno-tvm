@@ -7,7 +7,7 @@ import {
 
 // Built by Nile's /wallet/deploycontract for { abi: '[]', parameter, call_value: 0, consume_user_resource_percent: 100,
 // origin_energy_limit: 10000000, fee_limit: 100000000, name: 'Probe' }, which answered contract_address
-// 41e591c3bec28f8db55637a4c3cdf3b3b9a9e26b7c.
+// 41e591c3bec28f8db55637a4c3cdf3b3b9a9e26b7c. The payload's defaults are those two values.
 const transaction = new CreateSmartContractTransaction({
   instruction: new CreateSmartContractInstruction(
     new CreateSmartContractInstructionPayload({
@@ -17,8 +17,6 @@ const transaction = new CreateSmartContractTransaction({
           '00000000000000000000000024b7784dbfc673d39cea8f9ab537c29f5b7169d3',
       ),
       name: 'Probe',
-      consumeUserResourcePercent: 100,
-      originEnergyLimit: 10000000n,
     }),
   ),
   referenceBlockBytes: Uint8Array.fromHex('3906'),

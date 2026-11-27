@@ -149,7 +149,7 @@ Deno.test('Client triggers a smart contract with a call value and no or empty da
   }
 });
 
-Deno.test('Client deploys a contract, checking the transaction the node builds and the address it gives', async () => {
+Deno.test('Client deploys a contract with the default energy sharing, checking what the node builds', async () => {
   // Nile reply to { abi: '[]', bytecode, parameter, call_value: 0, consume_user_resource_percent: 100,
   // origin_energy_limit: 10000000, fee_limit: 100000000, name: 'Probe' }, the bytecode then holding the parameter.
   const client = createClientReplying({
@@ -195,8 +195,6 @@ Deno.test('Client deploys a contract, checking the transaction the node builds a
         '00000000000000000000000024b7784dbfc673d39cea8f9ab537c29f5b7169d3',
     ),
     name: 'Probe',
-    consumeUserResourcePercent: 100,
-    originEnergyLimit: 10000000,
     feeLimit: 100000000,
   });
   assert(transaction.hash() === 'abbab1fb59f86c9f6f980543139707ba4991b58754716693edb876f3853eed0b');
