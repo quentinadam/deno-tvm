@@ -48,7 +48,7 @@ Deno.test('Client gets the code at a base58 address', async () => {
   );
 });
 
-function createTriggerSmartContractClient(reply: unknown) {
+function createClientReplying(reply: unknown) {
   const fetcher = {
     fetch: async (_url: string, _options?: RequestInit) => await Promise.resolve(Response.json(reply)),
   };
@@ -57,7 +57,7 @@ function createTriggerSmartContractClient(reply: unknown) {
 
 Deno.test('Client triggers a smart contract with a zero call value, which the node omits', async () => {
   // Nile reply to { data: '8456cb59', fee_limit: 10000000, call_value: 0 }.
-  const client = createTriggerSmartContractClient({
+  const client = createClientReplying({
     transaction: {
       raw_data: {
         ref_block_bytes: 'c726',
@@ -103,7 +103,7 @@ Deno.test('Client triggers a smart contract with a zero call value, which the no
 
 Deno.test('Client triggers a smart contract with a call value and no or empty data', async () => {
   // Nile reply to { fee_limit: 10000000, call_value: 1000000 }, which calls the contract's receive().
-  const client = createTriggerSmartContractClient({
+  const client = createClientReplying({
     transaction: {
       raw_data: {
         ref_block_bytes: 'c726',
@@ -147,4 +147,111 @@ Deno.test('Client triggers a smart contract with a call value and no or empty da
     );
     assert(transaction.hash() === 'f3fbb4ff63e79f5e3f9f593097e64eaf7bd3f5395b5d77016877230b6226aaba');
   }
+});
+
+Deno.test('Client deploys a contract, checking the transaction the node builds and the address it gives', async () => {
+  // Nile reply to { abi: '[]', bytecode, parameter, call_value: 0, consume_user_resource_percent: 100,
+  // origin_energy_limit: 10000000, fee_limit: 100000000, name: 'Probe' }, the bytecode then holding the parameter.
+  const client = createClientReplying({
+    raw_data: {
+      ref_block_bytes: '3906',
+      ref_block_hash: 'a7b76d0e0c307ef1',
+      expiration: 1795806066000,
+      contract: [{
+        parameter: {
+          value: {
+            owner_address: 'TV8XUUvt56V9KgHdVjzEuZPBhiCfQbd177',
+            new_contract: {
+              origin_address: 'TV8XUUvt56V9KgHdVjzEuZPBhiCfQbd177',
+              abi: {},
+              bytecode:
+                '6080604052348015600f57600080fd5b50603e80601d6000396000f3fe6080604052600080fdfea164736f6c634300' +
+                '0706000a00000000000000000000000024b7784dbfc673d39cea8f9ab537c29f5b7169d3',
+              consume_user_resource_percent: 100,
+              name: 'Probe',
+              origin_energy_limit: 10000000,
+            },
+          },
+          type_url: 'type.googleapis.com/protocol.CreateSmartContract',
+        },
+        type: 'CreateSmartContract',
+      }],
+      timestamp: 1795806008714,
+      fee_limit: 100000000,
+    },
+    contract_address: '41e591c3bec28f8db55637a4c3cdf3b3b9a9e26b7c',
+    raw_data_hex: '0a0239062208a7b76d0e0c307ef140d0ea87f3a1345acf01081e12ca010a30747970652e676f6f676c65617069732e636f' +
+      '6d2f70726f746f636f6c2e437265617465536d617274436f6e74726163741295010a1541d22d8dcafa5c495ba37986d9a2d6c5474d28cd' +
+      '21127c0a1541d22d8dcafa5c495ba37986d9a2d6c5474d28cd211a0022536080604052348015600f57600080fd5b50603e80601d600039' +
+      '6000f3fe6080604052600080fdfea164736f6c6343000706000a00000000000000000000000024b7784dbfc673d39cea8f9ab537c29f5b' +
+      '7169d330643a0550726f62654080ade204708aab84f3a134900180c2d72f',
+    txID: 'abbab1fb59f86c9f6f980543139707ba4991b58754716693edb876f3853eed0b',
+    visible: true,
+  });
+  const transaction = await client.deployContract({
+    from: 'TV8XUUvt56V9KgHdVjzEuZPBhiCfQbd177',
+    data: Uint8Array.fromHex(
+      '6080604052348015600f57600080fd5b50603e80601d6000396000f3fe6080604052600080fdfea164736f6c6343000706000a' +
+        '00000000000000000000000024b7784dbfc673d39cea8f9ab537c29f5b7169d3',
+    ),
+    name: 'Probe',
+    consumeUserResourcePercent: 100,
+    originEnergyLimit: 10000000,
+    feeLimit: 100000000,
+  });
+  assert(transaction.hash() === 'abbab1fb59f86c9f6f980543139707ba4991b58754716693edb876f3853eed0b');
+  assert(transaction.contractAddress() === 'TWu4MthYNX6pmKms1Gikhx1u1n5LbQwG2D');
+});
+
+Deno.test('Client deploys a contract with no name, origin energy limit or fee limit, which the node omits', async () => {
+  // Nile reply to { abi: '[]', bytecode: '6080', consume_user_resource_percent: 100, origin_energy_limit: 0 }.
+  const client = createClientReplying({
+    raw_data: {
+      ref_block_bytes: '392d',
+      ref_block_hash: 'c00bfb194695f3d1',
+      expiration: 1795806183000,
+      contract: [{
+        parameter: {
+          value: {
+            owner_address: 'TV8XUUvt56V9KgHdVjzEuZPBhiCfQbd177',
+            new_contract: {
+              origin_address: 'TV8XUUvt56V9KgHdVjzEuZPBhiCfQbd177',
+              abi: {},
+              bytecode: '6080',
+              consume_user_resource_percent: 100,
+            },
+          },
+          type_url: 'type.googleapis.com/protocol.CreateSmartContract',
+        },
+        type: 'CreateSmartContract',
+      }],
+      timestamp: 1795806124870,
+    },
+    contract_address: '41b674ad5417ef38f04493bafd8992a97d4f51e9a2',
+    raw_data_hex:
+      '0a02392d2208c00bfb194695f3d140d8fc8ef3a1345a70081e126c0a30747970652e676f6f676c65617069732e636f6d2f70' +
+      '726f746f636f6c2e437265617465536d617274436f6e747261637412380a1541d22d8dcafa5c495ba37986d9a2d6c5474d28cd21121f0a' +
+      '1541d22d8dcafa5c495ba37986d9a2d6c5474d28cd211a0022026080306470c6b68bf3a134',
+    txID: 'a7cdc9832ed45da8a8405e33a3db5b52d8fe41f2f911b0f377374f0307dddd19',
+    visible: true,
+  });
+  const transaction = await client.deployContract({
+    from: 'TV8XUUvt56V9KgHdVjzEuZPBhiCfQbd177',
+    data: Uint8Array.fromHex('6080'),
+    consumeUserResourcePercent: 100,
+    originEnergyLimit: 0,
+  });
+  assert(transaction.hash() === 'a7cdc9832ed45da8a8405e33a3db5b52d8fe41f2f911b0f377374f0307dddd19');
+});
+
+Deno.test("Client fails a deployment with the node's error", async () => {
+  // Nile reply to a bytecode that is not hexadecimal.
+  const client = createClientReplying({ Error: 'internal server error' });
+  const error = await client.deployContract({
+    from: 'TV8XUUvt56V9KgHdVjzEuZPBhiCfQbd177',
+    data: Uint8Array.fromHex('6080'),
+    consumeUserResourcePercent: 100,
+    originEnergyLimit: 10000000,
+  }).then(() => undefined, (error: unknown) => error);
+  assert(error instanceof Error && error.message === 'internal server error');
 });

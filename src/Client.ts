@@ -1,6 +1,9 @@
 import { Client as BaseClient, ClientHelper } from '@quentinadam/evm-base';
 import * as z from '@quentinadam/zod';
 import { assert } from '@quentinadam/assert';
+import { CreateSmartContractInstruction } from './CreateSmartContractInstruction.ts';
+import { CreateSmartContractInstructionPayload } from './CreateSmartContractInstructionPayload.ts';
+import { CreateSmartContractTransaction } from './CreateSmartContractTransaction.ts';
 import { TriggerSmartContractInstructionPayload } from './TriggerSmartContractInstructionPayload.ts';
 import { TriggerSmartContractInstruction } from './TriggerSmartContractInstruction.ts';
 import { TriggerSmartContractTransaction } from './TriggerSmartContractTransaction.ts';
@@ -156,6 +159,118 @@ export class Client extends BaseClient {
     const transaction = result.transaction.raw_data;
     assert(transaction.serialize().toHex() === result.transaction.raw_data_hex);
     assert(transaction.hash() === result.transaction.txID);
+    return transaction;
+  }
+
+  /**
+   * The node's unsigned transaction creating a contract from `from` with `data`, its creation code followed by its
+   * constructor arguments, as `CreateSmartContractInstructionPayload` describes, checked against what was asked.
+   */
+  async deployContract({ from, data, value, name, consumeUserResourcePercent, originEnergyLimit, feeLimit }: {
+    from: string;
+    data: Uint8Array<ArrayBuffer>;
+    value?: number;
+    name?: string;
+    consumeUserResourcePercent: number;
+    originEnergyLimit: number;
+    feeLimit?: number;
+  }): Promise<CreateSmartContractTransaction> {
+    const json = await this.#fetch('/deploycontract', {
+      method: 'POST',
+      body: JSON.stringify({
+        owner_address: from,
+        abi: '[]',
+        bytecode: data.toHex(),
+        call_value: value ?? 0,
+        consume_user_resource_percent: consumeUserResourcePercent,
+        origin_energy_limit: originEnergyLimit,
+        fee_limit: feeLimit,
+        name: name ?? '',
+        visible: true,
+      }),
+    });
+    // The node omits each field whose value is proto3's zero.
+    const expected = <T>(field: string, expectedValue: T) => {
+      return [
+        (value: T) => value === expectedValue,
+        (value: T) => `Expected ${field} ${expectedValue}, got ${value}`,
+      ] as const;
+    };
+    const result = z.union([
+      z.object({ Error: z.string() }).transform(({ Error: error }) => ({ success: false, error } as const)),
+      z.object({
+        visible: z.literal(true),
+        txID: z.string(),
+        contract_address: z.string(),
+        raw_data: z.object({
+          contract: z.tuple([
+            z.object({
+              type: z.literal('CreateSmartContract'),
+              parameter: z.object({
+                value: z.object({
+                  owner_address: z.literal(from),
+                  new_contract: z.object({
+                    origin_address: z.literal(from),
+                    abi: z.unknown().refine(
+                      (abi) => JSON.stringify(abi) === '{}',
+                      (abi) => `Expected an empty ABI, got ${JSON.stringify(abi)}`,
+                    ),
+                    bytecode: z.string().refine(...expected('bytecode', data.toHex())),
+                    call_value: z.number().optional().transform((callValue) => callValue ?? 0)
+                      .refine(...expected('call value', value ?? 0)),
+                    consume_user_resource_percent: z.number().optional().transform((percent) => percent ?? 0)
+                      .refine(...expected('consume user resource percent', consumeUserResourcePercent)),
+                    name: z.string().optional().transform((contractName) => contractName ?? '')
+                      .refine(...expected('name', name ?? '')),
+                    origin_energy_limit: z.number().optional().transform((limit) => limit ?? 0)
+                      .refine(...expected('origin energy limit', originEnergyLimit)),
+                  }),
+                }).transform(({ owner_address, new_contract }) => {
+                  return new CreateSmartContractInstructionPayload({
+                    from: owner_address,
+                    data: Uint8Array.fromHex(new_contract.bytecode),
+                    value: BigInt(new_contract.call_value),
+                    name: new_contract.name,
+                    consumeUserResourcePercent: new_contract.consume_user_resource_percent,
+                    originEnergyLimit: BigInt(new_contract.origin_energy_limit),
+                  });
+                }),
+                type_url: z.literal('type.googleapis.com/protocol.CreateSmartContract'),
+              }),
+            }).transform(({ parameter: { value: payload } }) => new CreateSmartContractInstruction(payload)),
+          ]),
+          ref_block_bytes: z.string().transform((refBlockBytes) => Uint8Array.fromHex(refBlockBytes)),
+          ref_block_hash: z.string().transform((refBlockHash) => Uint8Array.fromHex(refBlockHash)),
+          expiration: z.number().transform((expiration) => new Date(expiration)),
+          fee_limit: z.number().transform((value) => BigInt(value)).optional(),
+          timestamp: z.number().transform((timestamp) => new Date(timestamp)),
+        }).transform(({
+          contract: [instruction],
+          ref_block_bytes: referenceBlockBytes,
+          ref_block_hash: referenceBlockHash,
+          expiration,
+          fee_limit: feeLimit,
+          timestamp,
+        }) => {
+          return new CreateSmartContractTransaction({
+            instruction,
+            referenceBlockBytes,
+            referenceBlockHash,
+            expiration,
+            feeLimit,
+            timestamp,
+          });
+        }),
+        raw_data_hex: z.string(),
+      }).transform((transaction) => ({ success: true, transaction } as const)),
+    ]).parse(json);
+    if (!result.success) {
+      throw new Error(result.error);
+    }
+    const transaction = result.transaction.raw_data;
+    assert(transaction.serialize().toHex() === result.transaction.raw_data_hex);
+    assert(transaction.hash() === result.transaction.txID);
+    assert(transaction.contractAddress() === addressFromBytes(Uint8Array.fromHex(result.transaction.contract_address)));
     return transaction;
   }
 
